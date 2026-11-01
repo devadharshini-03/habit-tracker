@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A modern, aesthetic pastel Habit Tracker with glassmorphism, streaks, confetti, and analytics">
+  <title>HabitFlow — Aesthetic Pastel Habit Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Ambient Background Mesh Glows -->
+  <div class="bg-mesh-glow glow-1" aria-hidden="true"></div>
+  <div class="bg-mesh-glow glow-2" aria-hidden="true"></div>
+  <div class="bg-mesh-glow glow-3" aria-hidden="true"></div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Greeting & Motivation Top Banner -->
+    <section class="greeting-banner glass-card" aria-label="Daily Greeting & Motivation">
+      <div class="greeting-content">
+        <div class="greeting-text-wrap">
+          <h2 class="greeting-title" id="greetingText">Good Morning, Champion! ☀️</h2>
+          <p class="motivational-quote" id="motivationalQuoteText">“Small daily improvements over time lead to stunning results.”</p>
+        </div>
+        <div class="greeting-badges">
+          <div class="streak-badge" id="streakBadge" title="Current consecutive day streak">
+            <span class="streak-flame" aria-hidden="true">🔥</span>
+            <div class="streak-info">
+              <span class="streak-count" id="streakCount">0</span>
+              <span class="streak-label">Day Streak</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Header Section -->
+    <header class="app-header glass-card">
+      <div class="header-branding">
+        <div class="logo-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="title-wrap">
+          <h1 class="app-title">HabitFlow</h1>
+          <p class="app-subtitle">Aesthetic Pastel Habit Tracker &amp; Monthly Analytics</p>
+        </div>
+      </div>
+
+      <!-- Navigation & Controls Toolbar -->
+      <div class="header-controls">
+        <!-- Month Navigation -->
+        <div class="month-nav-group">
+          <button id="prevMonthBtn" class="nav-btn" aria-label="Previous Month" title="Previous Month">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          
+          <div class="dropdown-wrapper">
+            <select id="monthSelect" class="styled-select" aria-label="Select Month"></select>
+            <select id="yearSelect" class="styled-select" aria-label="Select Year"></select>
+          </div>
+
+          <button id="nextMonthBtn" class="nav-btn" aria-label="Next Month" title="Next Month">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          <button id="todayBtn" class="today-jump-btn" title="Jump to Current Month">Today</button>
+        </div>
+
+        <!-- Management Actions & Theme Toggle -->
+        <div class="action-buttons-group">
+          <button id="resetMonthBtn" class="action-btn reset-month-btn" title="Clear only checks for this month (habits stay)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            <span>Reset Month</span>
+          </button>
+
+          <button id="clearAllHabitsBtn" class="action-btn clear-all-btn" title="Delete every habit (with confirm)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Clear All</span>
+          </button>
+
+          <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle light and dark theme" title="Toggle theme">
+            <span class="theme-icon light-icon" aria-hidden="true">☀️</span>
+            <span class="theme-icon dark-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Theme</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-content">
+
+      <!-- Top Row: Donut Chart & Monthly KPI Cards -->
+      <section class="stats-overview-section" aria-label="Monthly Performance Overview">
+        <!-- Donut Card -->
+        <div class="glass-card donut-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-header-icon">📊</span>
+              <h2 class="card-title">Overall Monthly Progress</h2>
+            </div>
+            <span class="badge" id="monthBadge">November 2026</span>
+          </div>
+          <div class="donut-content-wrapper">
+            <div class="donut-chart-container" id="donutChartContainer" aria-label="Donut Chart showing overall completion">
+              <!-- SVG Donut Chart injected here -->
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item completed">
+                <span class="legend-dot"></span>
+                <div class="legend-text">
+                  <span class="legend-label">Completed Checks</span>
+                  <strong class="legend-value" id="completedCountText">0</strong>
+                </div>
+              </div>
+              <div class="legend-item incomplete">
+                <span class="legend-dot"></span>
+                <div class="legend-text">
+                  <span class="legend-label">Incomplete Checks</span>
+                  <strong class="legend-value" id="incompleteCountText">0</strong>
+                </div>
+              </div>
+              <div class="legend-item total">
+                <span class="legend-dot"></span>
+                <div class="legend-text">
+                  <span class="legend-label">Total Opportunities</span>
+                  <strong class="legend-value" id="totalChecksText">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Metrics Cards -->
+        <div class="glass-card metrics-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-header-icon">✨</span>
+              <h2 class="card-title">Monthly Highlights</h2>
+            </div>
+            <span class="pulse-indicator" title="Live statistics"></span>
+          </div>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <span class="metric-icon">🏆</span>
+              <div class="metric-info">
+                <span class="metric-label">Best Habit</span>
+                <strong class="metric-value" id="bestHabitText">—</strong>
+              </div>
+            </div>
+            <div class="metric-item">
+              <span class="metric-icon">⚡</span>
+              <div class="metric-info">
+                <span class="metric-label">Best Day</span>
+                <strong class="metric-value" id="bestDayText">—</strong>
+              </div>
+            </div>
+            <div class="metric-item">
+              <span class="metric-icon">📅</span>
+              <div class="metric-info">
+                <span class="metric-label">Daily Avg Done</span>
+                <strong class="metric-value" id="dailyAvgText">0</strong>
+              </div>
+            </div>
+            <div class="metric-item">
+              <span class="metric-icon">🎯</span>
+              <div class="metric-info">
+                <span class="metric-label">Active Habits</span>
+                <strong class="metric-value" id="activeHabitsCount">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weekly Progress Cards (Week 1 to Week 5) -->
+      <section class="weekly-cards-section" aria-label="Weekly Progress Cards">
+        <div class="section-title-wrap">
+          <div class="title-with-pill">
+            <h2 class="section-heading">Weekly Breakdown</h2>
+            <span class="section-subtext">Google Sheets Pastel Weeks (W1 to W5)</span>
+          </div>
+        </div>
+        <div class="weekly-cards-grid" id="weeklyCardsGrid">
+          <!-- Dynamically populated 5 weekly cards -->
+        </div>
+      </section>
+
+      <!-- Daily Progress Line Chart Section -->
+      <section class="chart-section glass-card" aria-label="Daily Progress Trend Chart">
+        <div class="card-header chart-header-row">
+          <div>
+            <div class="card-title-group">
+              <span class="card-header-icon">📈</span>
+              <h2 class="card-title">Daily Completion Trend</h2>
+            </div>
+            <p class="card-desc">Percentage of total habits checked off for each day of the month</p>
+          </div>
+          <div class="chart-legend-tag">
+            <span class="chart-line-dot"></span>
+            <span>Completion Rate (%)</span>
+          </div>
+        </div>
+        <div class="chart-wrapper" id="dailyChartWrapper">
+          <!-- Inline SVG Line Chart dynamically rendered here -->
+        </div>
+        <div class="chart-tooltip" id="chartTooltip" role="tooltip" aria-hidden="true"></div>
+      </section>
+
+      <!-- Habit Management & Table Section -->
+      <section class="habit-table-section glass-card" aria-label="Habits Spreadsheet Table">
+        
+        <!-- Add Habit Bar with Emoji & Color Selectors -->
+        <div class="table-actions-bar">
+          <form id="addHabitForm" class="add-habit-form" onsubmit="return false;">
+            
+            <!-- Emoji Selector -->
+            <div class="emoji-picker-container" id="emojiPickerContainer">
+              <button type="button" id="emojiPickerBtn" class="emoji-picker-btn" title="Pick an emoji" aria-label="Pick an emoji">
+                <span id="selectedEmojiDisplay">💧</span>
+                <span class="emoji-chevron">▾</span>
+              </button>
+              
+              <!-- Emoji Dropdown Palette -->
+              <div class="emoji-dropdown-palette" id="emojiPalette" aria-hidden="true">
+                <div class="emoji-grid" id="emojiGrid">
+                  <!-- Populated dynamically or static presets -->
+                </div>
+                <div class="custom-emoji-row">
+                  <input type="text" id="customEmojiInput" class="custom-emoji-input" placeholder="Type emoji..." maxlength="4">
+                </div>
+              </div>
+            </div>
+
+            <!-- Color Swatches & Picker -->
+            <div class="color-picker-container" id="colorPickerContainer">
+              <div class="color-swatches" id="colorSwatches">
+                <!-- Color swatches injected dynamically -->
+              </div>
+              <input type="color" id="customColorInput" class="custom-color-input" value="#06b6d4" title="Pick custom color">
+            </div>
+
+            <!-- Habit Title Input -->
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="habitInput" 
+                class="habit-input" 
+                placeholder="What habit would you like to build?" 
+                autocomplete="off"
+                maxlength="60"
+                required
+              >
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="addHabitBtn" class="add-habit-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add Habit</span>
+            </button>
+          </form>
+
+          <!-- Table Legend Pills -->
+          <div class="table-legend-pills">
+            <span class="legend-pill w1-pill">Week 1</span>
+            <span class="legend-pill w2-pill">Week 2</span>
+            <span class="legend-pill w3-pill">Week 3</span>
+            <span class="legend-pill w4-pill">Week 4</span>
+            <span class="legend-pill w5-pill">Week 5</span>
+            <span class="legend-pill today-pill-tag">Today 🔥</span>
+          </div>
+        </div>
+
+        <!-- Scrollable Table Container -->
+        <div class="table-scroll-container" id="tableScrollContainer" tabindex="0" aria-label="Habit Checkbox Matrix">
+          <table class="habit-table" id="habitTable">
+            <thead id="habitTableHead">
+              <!-- Dynamically rendered sticky headers and day numbers -->
+            </thead>
+            <tbody id="habitTableBody">
+              <!-- Dynamically rendered rows for each habit -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer Hint -->
+        <div class="table-footer-hint">
+          <span>💡 <strong>Tip:</strong> Habit column is pinned on mobile. Tap any checkbox to track, or scroll horizontally to view all days.</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <p>HabitFlow • Built with vanilla HTML, CSS &amp; JavaScript • LocalStorage Encrypted &amp; Persistent</p>
+    </footer>
+
+  </div>
+
+  <!-- Reusable Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-icon-wrap" id="modalIconWrap">
+        <svg id="modalIconSvg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <h3 class="modal-title" id="modalTitle">Confirm Action</h3>
+      <p class="modal-desc" id="modalDesc">Are you sure you want to proceed?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="modalConfirmBtn">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5-Second Undo Toast Notification -->
+  <aside class="undo-toast" id="undoToast" role="alert" aria-live="assertive" aria-hidden="true">
+    <div class="undo-toast-content">
+      <span class="undo-toast-icon">🗑️</span>
+      <span class="undo-toast-message" id="undoToastMessage">Habit deleted</span>
+      <button type="button" class="undo-toast-btn" id="undoToastBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7v6h6"></path>
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+        </svg>
+        <span>Undo</span>
+      </button>
+      <button type="button" class="undo-toast-close" id="undoToastClose" aria-label="Close notification">×</button>
+    </div>
+    <div class="undo-toast-progress-track">
+      <div class="undo-toast-progress-bar" id="undoProgressBar"></div>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>
